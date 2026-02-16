@@ -1,14 +1,44 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useCallback } from "react";
+import LandingScreen from "@/components/LandingScreen";
+import Questionnaire from "@/components/Questionnaire";
+import AnalysisScreen from "@/components/AnalysisScreen";
+import ResultsView from "@/components/ResultsView";
+import { mockResults } from "@/lib/quizData";
+
+type AppStep = "landing" | "questionnaire" | "analysis" | "results";
 
 const Index = () => {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
+  const [step, setStep] = useState<AppStep>("landing");
+  const [_email, setEmail] = useState("");
+
+  const handleStart = (email: string) => {
+    setEmail(email);
+    setStep("questionnaire");
+  };
+
+  const handleQuizComplete = (_answers: Record<string, any>) => {
+    setStep("analysis");
+  };
+
+  const handleAnalysisComplete = useCallback(() => {
+    setStep("results");
+  }, []);
+
+  const handleStartOver = () => {
+    setStep("landing");
+    setEmail("");
+  };
+
+  switch (step) {
+    case "landing":
+      return <LandingScreen onStart={handleStart} />;
+    case "questionnaire":
+      return <Questionnaire onComplete={handleQuizComplete} />;
+    case "analysis":
+      return <AnalysisScreen onComplete={handleAnalysisComplete} />;
+    case "results":
+      return <ResultsView results={mockResults} onStartOver={handleStartOver} />;
+  }
 };
 
 export default Index;
