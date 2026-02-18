@@ -10,12 +10,16 @@ import {
   Star,
   RotateCcw,
   Mail,
+  Loader2,
 } from "lucide-react";
 import { useState } from "react";
 import type { AnalysisResult, CareerRecommendation } from "@/lib/quizData";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface ResultsViewProps {
   results: AnalysisResult;
+  email: string;
   onStartOver: () => void;
 }
 
@@ -200,8 +204,37 @@ const CareerCard = ({
   );
 };
 
-const ResultsView = ({ results, onStartOver }: ResultsViewProps) => {
+const ResultsView = ({ results, email, onStartOver }: ResultsViewProps) => {
   const { recommendations, summary } = results;
+  const [sending, setSending] = useState(false);
+
+  const handleEmailReport = async () => {
+    setSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-report-email", {
+        body: { email, results },
+      });
+      if (error) throw error;
+      
+      // Open the HTML report in a new tab for download
+      if (data?.html) {
+        const blob = new Blob([data.html], { type: "text/html" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "PathGenie-Career-Report.html";
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+      
+      toast.success(`📧 Report downloaded! We've also prepared it for ${email}`);
+    } catch (err) {
+      console.error("Email report error:", err);
+      toast.error("Failed to generate report. Please try again.");
+    } finally {
+      setSending(false);
+    }
+  };
 
   const confidenceColor =
     summary.confidence_level === "High"
@@ -268,13 +301,12 @@ const ResultsView = ({ results, onStartOver }: ResultsViewProps) => {
           transition={{ delay: 0.8 }}
         >
           <button
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-primary text-primary-foreground font-semibold shadow-soft hover:opacity-90 transition-opacity"
-            onClick={() => {
-              // Mock email action
-              alert("📧 Report sent! Check your inbox (and spam folder).");
-            }}
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-primary text-primary-foreground font-semibold shadow-soft hover:opacity-90 transition-opacity disabled:opacity-50"
+            onClick={handleEmailReport}
+            disabled={sending}
           >
-            <Mail className="w-4 h-4" /> Email Me the Report
+            {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
+            {sending ? "Preparing Report..." : "Download Report"}
           </button>
           <button
             onClick={onStartOver}

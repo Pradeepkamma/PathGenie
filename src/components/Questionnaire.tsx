@@ -198,6 +198,23 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
               transition={{ duration: 0.3 }}
               className="text-center"
             >
+              {current.difficulty && (
+                <span
+                  className={`inline-block mb-3 text-xs font-semibold px-3 py-1 rounded-full ${
+                    current.difficulty === "basic"
+                      ? "bg-success/15 text-success"
+                      : current.difficulty === "intermediate"
+                      ? "bg-highlight/15 text-highlight"
+                      : "bg-primary/15 text-primary"
+                  }`}
+                >
+                  {current.difficulty === "basic"
+                    ? "🟢 Basic"
+                    : current.difficulty === "intermediate"
+                    ? "🟡 Intermediate"
+                    : "🔴 Advanced"}
+                </span>
+              )}
               <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 font-display">
                 {current.question}
               </h2>

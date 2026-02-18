@@ -11,7 +11,7 @@ type AppStep = "landing" | "questionnaire" | "analysis" | "results";
 
 const Index = () => {
   const [step, setStep] = useState<AppStep>("landing");
-  const [_email, setEmail] = useState("");
+  const [email, setEmail] = useState("");
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [results, setResults] = useState<AnalysisResult | null>(null);
 
@@ -59,7 +59,7 @@ const Index = () => {
       return <AnalysisScreen onComplete={handleAnalysisComplete} />;
     case "results":
       return results ? (
-        <ResultsView results={results} onStartOver={handleStartOver} />
+        <ResultsView results={results} email={email} onStartOver={handleStartOver} />
       ) : null;
   }
 };

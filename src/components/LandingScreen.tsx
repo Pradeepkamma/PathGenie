@@ -62,13 +62,17 @@ const LandingScreen = ({ onStart }: LandingScreenProps) => {
           AI-Powered Career Guidance
         </motion.div>
 
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary-foreground mb-6 font-display leading-tight">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary-foreground mb-4 font-display leading-tight">
           Discover Your Perfect
           <br />
           <span className="text-gradient-primary bg-gradient-to-r from-accent to-highlight bg-clip-text text-transparent">
             Tech Career Path
           </span>
         </h1>
+
+        <p className="text-xl sm:text-2xl text-primary-foreground/50 italic mb-8 font-display">
+          🧞‍♂️ A Genie That Finds Your Path
+        </p>
 
         <p className="text-lg sm:text-xl text-primary-foreground/70 mb-10 max-w-lg mx-auto leading-relaxed">
           Answer a few questions about your skills, interests, and goals. Get personalized career recommendations with actionable roadmaps.
