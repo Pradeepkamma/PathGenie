@@ -77,6 +77,8 @@ export const questions: Question[] = [
     question: "Which programming languages are you proficient in?",
     type: "multi-select",
     options: [
+      { value: "html", label: "HTML" },
+      { value: "css", label: "CSS" },
       { value: "python", label: "Python" },
       { value: "javascript", label: "JavaScript" },
       { value: "typescript", label: "TypeScript" },
