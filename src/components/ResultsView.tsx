@@ -3,6 +3,7 @@ import {
   ChevronDown,
   TrendingUp,
   Briefcase,
+  Send,
   GraduationCap,
   CheckCircle2,
   BookOpen,
@@ -207,32 +208,36 @@ const CareerCard = ({
 const ResultsView = ({ results, email, onStartOver }: ResultsViewProps) => {
   const { recommendations, summary } = results;
   const [sending, setSending] = useState(false);
+  const [emailing, setEmailing] = useState(false);
 
-  const handleEmailReport = async () => {
-    setSending(true);
+  const handleDownloadReport = () => {
+    const { recommendations: recs, summary: sum } = results;
+    const cards = recs.map(r => `<div style="background:#f8f9fa;border-radius:12px;padding:20px;margin-bottom:16px;border-left:4px solid ${r.rank===1?'#4f46e5':'#e5e7eb'}"><h3>#${r.rank} ${r.career_title} — ${r.fit_score}%</h3><p>${r.why_fits}</p><p><strong>What you'll do:</strong> ${r.role_description}</p></div>`).join("");
+    const html = `<!DOCTYPE html><html><body style="font-family:sans-serif;max-width:640px;margin:0 auto;padding:24px"><h1>🧞‍♂️ PathGenie Report</h1><h2>Top: ${sum.top_recommendation}</h2><p>Confidence: ${sum.confidence_level} — ${sum.confidence_explanation}</p>${cards}</body></html>`;
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "PathGenie-Career-Report.html";
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("📄 Report downloaded!");
+  };
+
+  const handleSendToEmail = async () => {
+    setEmailing(true);
     try {
       const { data, error } = await supabase.functions.invoke("send-report-email", {
         body: { email, results },
       });
       if (error) throw error;
-      
-      // Open the HTML report in a new tab for download
-      if (data?.html) {
-        const blob = new Blob([data.html], { type: "text/html" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "PathGenie-Career-Report.html";
-        a.click();
-        URL.revokeObjectURL(url);
-      }
-      
-      toast.success(`📧 Report downloaded! We've also prepared it for ${email}`);
+      if (data?.error) throw new Error(data.error);
+      toast.success(`📧 Report sent to ${email}!`);
     } catch (err) {
       console.error("Email report error:", err);
-      toast.error("Failed to generate report. Please try again.");
+      toast.error("Failed to send report. Please try again.");
     } finally {
-      setSending(false);
+      setEmailing(false);
     }
   };
 
@@ -301,12 +306,18 @@ const ResultsView = ({ results, email, onStartOver }: ResultsViewProps) => {
           transition={{ delay: 0.8 }}
         >
           <button
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-primary text-primary-foreground font-semibold shadow-soft hover:opacity-90 transition-opacity disabled:opacity-50"
-            onClick={handleEmailReport}
-            disabled={sending}
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-primary text-primary-foreground font-semibold shadow-soft hover:opacity-90 transition-opacity"
+            onClick={handleDownloadReport}
           >
-            {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
-            {sending ? "Preparing Report..." : "Download Report"}
+            <Mail className="w-4 h-4" /> Download Report
+          </button>
+          <button
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-accent-foreground font-semibold shadow-soft hover:opacity-90 transition-opacity disabled:opacity-50"
+            onClick={handleSendToEmail}
+            disabled={emailing}
+          >
+            {emailing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {emailing ? "Sending..." : `Send Report to ${email}`}
           </button>
           <button
             onClick={onStartOver}
