@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
+import ResultsCharts from "./ResultsCharts";
 import {
   ChevronDown,
   TrendingUp,
@@ -290,6 +291,9 @@ const ResultsView = ({ results, email, onStartOver }: ResultsViewProps) => {
             {summary.confidence_explanation}
           </p>
         </motion.div>
+
+        {/* Charts */}
+        <ResultsCharts recommendations={recommendations} />
 
         {/* Career Cards */}
         <div className="space-y-4 mb-10">
