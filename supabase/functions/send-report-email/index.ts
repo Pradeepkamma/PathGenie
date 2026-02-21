@@ -21,6 +21,11 @@ serve(async (req) => {
       );
     }
 
+    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    if (!RESEND_API_KEY) {
+      throw new Error("RESEND_API_KEY is not configured");
+    }
+
     const { recommendations, summary } = results;
 
     // Build HTML email
@@ -87,20 +92,30 @@ serve(async (req) => {
     </body>
     </html>`;
 
-    // Use Supabase's built-in email via the Auth admin API is not available,
-    // so we use Resend-style approach via the AI gateway to generate + send
-    // For now, use a simple SMTP-less approach: return the HTML for the client
-    // to handle, OR use a third-party email service.
-    
-    // Since we don't have an email service configured, we'll use the Supabase
-    // edge function to return the formatted report that can be downloaded/shared
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: `Report prepared for ${email}`,
+    // Send email via Resend
+    const resendRes = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: "PathGenie <onboarding@resend.dev>",
+        to: [email],
+        subject: `🧞‍♂️ Your PathGenie Career Report — ${summary.top_recommendation}`,
         html,
-        email 
       }),
+    });
+
+    const resendData = await resendRes.json();
+
+    if (!resendRes.ok) {
+      console.error("Resend error:", resendData);
+      throw new Error(resendData?.message || "Failed to send email");
+    }
+
+    return new Response(
+      JSON.stringify({ success: true, message: `Report sent to ${email}` }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {
