@@ -14,6 +14,8 @@ import {
   RotateCcw,
   Mail,
   Loader2,
+  Share2,
+  Link,
 } from "lucide-react";
 import { useState } from "react";
 import type { AnalysisResult, CareerRecommendation } from "@/lib/quizData";
@@ -24,6 +26,7 @@ interface ResultsViewProps {
   results: AnalysisResult;
   email: string;
   onStartOver: () => void;
+  isShared?: boolean;
 }
 
 const fitColor = (score: number) => {
@@ -207,10 +210,11 @@ const CareerCard = ({
   );
 };
 
-const ResultsView = ({ results, email, onStartOver }: ResultsViewProps) => {
+const ResultsView = ({ results, email, onStartOver, isShared }: ResultsViewProps) => {
   const { recommendations, summary } = results;
   const [sending, setSending] = useState(false);
   const [emailing, setEmailing] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
 
   const handleDownloadReport = () => {
     const { recommendations: recs, summary: sum } = results;
@@ -240,6 +244,29 @@ const ResultsView = ({ results, email, onStartOver }: ResultsViewProps) => {
       toast.error("Failed to send report. Please try again.");
     } finally {
       setEmailing(false);
+    }
+  };
+
+  const handleShare = async () => {
+    if (shareUrl) {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("🔗 Link copied to clipboard!");
+      return;
+    }
+    try {
+      const { data, error } = await supabase
+        .from("shared_results")
+        .insert([{ email, results: JSON.parse(JSON.stringify(results)) }])
+        .select("id")
+        .single();
+      if (error) throw error;
+      const url = `${window.location.origin}/results/${data.id}`;
+      setShareUrl(url);
+      await navigator.clipboard.writeText(url);
+      toast.success("🔗 Shareable link copied to clipboard!");
+    } catch (err) {
+      console.error("Share error:", err);
+      toast.error("Failed to create shareable link.");
     }
   };
 
@@ -316,13 +343,22 @@ const ResultsView = ({ results, email, onStartOver }: ResultsViewProps) => {
           >
             <Mail className="w-4 h-4" /> Download Report
           </button>
+          {!isShared && (
+            <button
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-accent-foreground font-semibold shadow-soft hover:opacity-90 transition-opacity disabled:opacity-50"
+              onClick={handleSendToEmail}
+              disabled={emailing}
+            >
+              {emailing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              {emailing ? "Sending..." : `Send Report to ${email}`}
+            </button>
+          )}
           <button
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-accent-foreground font-semibold shadow-soft hover:opacity-90 transition-opacity disabled:opacity-50"
-            onClick={handleSendToEmail}
-            disabled={emailing}
+            onClick={handleShare}
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-secondary text-secondary-foreground font-semibold shadow-soft hover:opacity-90 transition-opacity"
           >
-            {emailing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            {emailing ? "Sending..." : `Send Report to ${email}`}
+            {shareUrl ? <Link className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
+            {shareUrl ? "Copy Link" : "Share Results"}
           </button>
           <button
             onClick={onStartOver}
