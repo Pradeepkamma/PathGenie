@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import ResultsCharts from "./ResultsCharts";
+import CareerChatbot from "./CareerChatbot";
 import {
   ChevronDown,
   TrendingUp,
@@ -331,6 +332,9 @@ const ResultsView = ({ results, email, onStartOver }: ResultsViewProps) => {
           </button>
         </motion.div>
       </div>
+
+      {/* AI Career Chatbot */}
+      <CareerChatbot results={results} />
     </div>
   );
 };
