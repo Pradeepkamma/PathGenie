@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      career_progress: {
+        Row: {
+          career_title: string
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          email: string
+          id: string
+          step_index: number
+          step_text: string
+        }
+        Insert: {
+          career_title: string
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          step_index: number
+          step_text: string
+        }
+        Update: {
+          career_title?: string
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          step_index?: number
+          step_text?: string
+        }
+        Relationships: []
+      }
       shared_results: {
         Row: {
           created_at: string

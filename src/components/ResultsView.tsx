@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import ResultsCharts from "./ResultsCharts";
 import CareerChatbot from "./CareerChatbot";
+import ProgressTracker from "./ProgressTracker";
 import {
   ChevronDown,
   TrendingUp,
@@ -322,6 +323,11 @@ const ResultsView = ({ results, email, onStartOver, isShared }: ResultsViewProps
 
         {/* Charts */}
         <ResultsCharts recommendations={recommendations} />
+
+        {/* Progress Tracker */}
+        {!isShared && (
+          <ProgressTracker recommendations={recommendations} email={email} />
+        )}
 
         {/* Career Cards */}
         <div className="space-y-4 mb-10">
