@@ -324,6 +324,11 @@ const ResultsView = ({ results, email, onStartOver, isShared }: ResultsViewProps
         {/* Charts */}
         <ResultsCharts recommendations={recommendations} />
 
+        {/* Progress Tracker */}
+        {!isShared && (
+          <ProgressTracker recommendations={recommendations} email={email} />
+        )}
+
         {/* Career Cards */}
         <div className="space-y-4 mb-10">
           {recommendations.map((rec, i) => (
