@@ -330,6 +330,9 @@ const ResultsView = ({ results, email, onStartOver, isShared }: ResultsViewProps
           <ProgressTracker recommendations={recommendations} email={email} />
         )}
 
+        {/* Resource Library */}
+        <ResourceLibrary recommendations={recommendations} />
+
         {/* Career Cards */}
         <div className="space-y-4 mb-10">
           {recommendations.map((rec, i) => (
