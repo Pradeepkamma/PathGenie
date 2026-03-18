@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import ResultsCharts from "./ResultsCharts";
 import CareerChatbot from "./CareerChatbot";
 import ProgressTracker from "./ProgressTracker";
+import ResourceLibrary from "./ResourceLibrary";
 import {
   ChevronDown,
   TrendingUp,
