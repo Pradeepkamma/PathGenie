@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { generatePdfReport } from "@/lib/generatePdfReport";
 import ResultsCharts from "./ResultsCharts";
 import CareerChatbot from "./CareerChatbot";
 import ProgressTracker from "./ProgressTracker";
