@@ -87,7 +87,7 @@ export function generatePdfReport(results: AnalysisResult) {
     doc.roundedRect(margin, y, contentW, 4, 2, 2, "F"); // placeholder height, will expand
 
     // Accent bar
-    const accent = i === 0 ? brandPrimary : gray200;
+    const accent: [number, number, number] = i === 0 ? brandPrimary : gray200;
     doc.setFillColor(...accent);
     doc.rect(margin, y, 3, 74, "F");
 
