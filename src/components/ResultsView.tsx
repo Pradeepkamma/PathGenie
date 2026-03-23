@@ -220,17 +220,8 @@ const ResultsView = ({ results, email, onStartOver, isShared }: ResultsViewProps
   const [shareUrl, setShareUrl] = useState("");
 
   const handleDownloadReport = () => {
-    const { recommendations: recs, summary: sum } = results;
-    const cards = recs.map(r => `<div style="background:#f8f9fa;border-radius:12px;padding:20px;margin-bottom:16px;border-left:4px solid ${r.rank===1?'#4f46e5':'#e5e7eb'}"><h3>#${r.rank} ${r.career_title} — ${r.fit_score}%</h3><p>${r.why_fits}</p><p><strong>What you'll do:</strong> ${r.role_description}</p></div>`).join("");
-    const html = `<!DOCTYPE html><html><body style="font-family:sans-serif;max-width:640px;margin:0 auto;padding:24px"><h1>🧞‍♂️ PathGenie Report</h1><h2>Top: ${sum.top_recommendation}</h2><p>Confidence: ${sum.confidence_level} — ${sum.confidence_explanation}</p>${cards}</body></html>`;
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "PathGenie-Career-Report.html";
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success("📄 Report downloaded!");
+    generatePdfReport(results);
+    toast.success("📄 PDF report downloaded!");
   };
 
   const handleSendToEmail = async () => {
