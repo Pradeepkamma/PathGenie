@@ -92,9 +92,11 @@ export function generatePdfReport(results: AnalysisResult) {
     doc.rect(margin, y, 3, 74, "F");
 
     // Rank badge
-    doc.setFillColor(...(i === 0 ? brandPrimary : [240, 240, 245]));
+    const badgeFill: [number, number, number] = i === 0 ? brandPrimary : [240, 240, 245];
+    doc.setFillColor(...badgeFill);
     doc.circle(margin + 12, y + 8, 5, "F");
-    doc.setTextColor(...(i === 0 ? white : gray500));
+    const badgeText: [number, number, number] = i === 0 ? white : gray500;
+    doc.setTextColor(...badgeText);
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
     doc.text(`${rec.rank}`, margin + 12, y + 10, { align: "center" });
