@@ -5,6 +5,7 @@ import CareerChatbot from "./CareerChatbot";
 import ProgressTracker from "./ProgressTracker";
 import ResourceLibrary from "./ResourceLibrary";
 import PeerComparison from "./PeerComparison";
+import CareerComparisonTable from "./CareerComparisonTable";
 import {
   ChevronDown,
   TrendingUp,
@@ -330,6 +331,9 @@ const ResultsView = ({ results, email, onStartOver, isShared }: ResultsViewProps
 
         {/* Resource Library */}
         <ResourceLibrary recommendations={recommendations} />
+
+        {/* Career Comparison Table */}
+        <CareerComparisonTable recommendations={recommendations} />
 
         {/* Career Cards */}
         <div className="space-y-4 mb-10">
