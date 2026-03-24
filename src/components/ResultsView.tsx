@@ -323,6 +323,11 @@ const ResultsView = ({ results, email, onStartOver, isShared }: ResultsViewProps
           <ProgressTracker recommendations={recommendations} email={email} />
         )}
 
+        {/* Peer Comparison */}
+        {!isShared && (
+          <PeerComparison recommendations={recommendations} />
+        )}
+
         {/* Resource Library */}
         <ResourceLibrary recommendations={recommendations} />
 
