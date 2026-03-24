@@ -1,18 +1,56 @@
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { CheckCircle2, Circle, Trophy, Sparkles } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { CheckCircle2, Circle, Trophy, Sparkles, PartyPopper } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import type { CareerRecommendation } from "@/lib/quizData";
+import confetti from "canvas-confetti";
 
 interface ProgressTrackerProps {
   recommendations: CareerRecommendation[];
   email: string;
 }
 
+const milestoneMessages = [
+  { at: 1, emoji: "🚀", text: "First step done! You're on your way." },
+  { at: 3, emoji: "🔥", text: "Three steps in — great momentum!" },
+  { at: 5, emoji: "⭐", text: "Halfway hero! Keep going." },
+];
+
+const fireConfetti = (intensity: "small" | "big") => {
+  if (intensity === "small") {
+    confetti({
+      particleCount: 40,
+      spread: 60,
+      origin: { y: 0.7 },
+      colors: ["hsl(262,83%,58%)", "hsl(47,100%,62%)", "hsl(142,76%,36%)"],
+    });
+  } else {
+    const end = Date.now() + 800;
+    const frame = () => {
+      confetti({
+        particleCount: 3,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 },
+      });
+      confetti({
+        particleCount: 3,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 },
+      });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    };
+    frame();
+  }
+};
+
 const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
   const [selectedCareer, setSelectedCareer] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Record<string, boolean[]>>({});
   const [loading, setLoading] = useState(true);
+  const [justCompleted, setJustCompleted] = useState(false);
 
   const career = recommendations[selectedCareer];
   const careerKey = career.career_title;
@@ -44,10 +82,38 @@ const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
     fetchProgress();
   }, [email, recommendations]);
 
+  const celebrateStep = useCallback(
+    (newCount: number, totalSteps: number) => {
+      // All steps complete
+      if (newCount === totalSteps) {
+        setJustCompleted(true);
+        fireConfetti("big");
+        toast.success("🎉 All steps complete! You're crushing it!", { duration: 4000 });
+        setTimeout(() => setJustCompleted(false), 3000);
+        return;
+      }
+
+      // Milestone check
+      const milestone = milestoneMessages.find((m) => m.at === newCount);
+      if (milestone) {
+        fireConfetti("small");
+        toast.success(`${milestone.emoji} ${milestone.text}`, { duration: 3000 });
+      }
+    },
+    []
+  );
+
   const toggleStep = async (stepIndex: number) => {
     const newChecked = [...checked];
-    newChecked[stepIndex] = !newChecked[stepIndex];
+    const wasCompleted = newChecked[stepIndex];
+    newChecked[stepIndex] = !wasCompleted;
     setCompletedSteps((prev) => ({ ...prev, [careerKey]: newChecked }));
+
+    // Celebrate only when completing (not unchecking)
+    if (!wasCompleted) {
+      const newCount = newChecked.filter(Boolean).length;
+      celebrateStep(newCount, steps.length);
+    }
 
     const { data: existing } = await supabase
       .from("career_progress")
@@ -79,18 +145,43 @@ const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
 
   return (
     <motion.div
-      className="bg-card rounded-2xl border border-border shadow-card p-6 mb-10"
+      className="bg-card rounded-2xl border border-border shadow-card p-6 mb-10 relative overflow-hidden"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5 }}
     >
+      {/* Completion celebration overlay */}
+      <AnimatePresence>
+        {justCompleted && (
+          <motion.div
+            className="absolute inset-0 bg-success/5 z-10 pointer-events-none flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: [0, 1.2, 1] }}
+              transition={{ duration: 0.5 }}
+            >
+              <PartyPopper className="w-16 h-16 text-success/30" />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex items-center gap-3 mb-5">
         <Trophy className="w-5 h-5 text-primary" />
         <h3 className="text-lg font-bold text-foreground font-display">Progress Tracker</h3>
         {progress === 100 && (
-          <span className="inline-flex items-center gap-1 text-xs font-semibold bg-success/10 text-success px-2.5 py-1 rounded-full">
+          <motion.span
+            className="inline-flex items-center gap-1 text-xs font-semibold bg-success/10 text-success px-2.5 py-1 rounded-full"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
             <Sparkles className="w-3 h-3" /> Complete!
-          </span>
+          </motion.span>
         )}
       </div>
 
@@ -145,7 +236,13 @@ const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
                 whileTap={{ scale: 0.85 }}
               >
                 {checked[i] ? (
-                  <CheckCircle2 className="w-5 h-5 text-success" />
+                  <motion.div
+                    initial={{ scale: 0.5 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 400 }}
+                  >
+                    <CheckCircle2 className="w-5 h-5 text-success" />
+                  </motion.div>
                 ) : (
                   <Circle className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                 )}
