@@ -4,6 +4,7 @@ import ResultsCharts from "./ResultsCharts";
 import CareerChatbot from "./CareerChatbot";
 import ProgressTracker from "./ProgressTracker";
 import ResourceLibrary from "./ResourceLibrary";
+import PeerComparison from "./PeerComparison";
 import {
   ChevronDown,
   TrendingUp,
