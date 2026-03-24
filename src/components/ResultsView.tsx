@@ -4,6 +4,7 @@ import ResultsCharts from "./ResultsCharts";
 import CareerChatbot from "./CareerChatbot";
 import ProgressTracker from "./ProgressTracker";
 import ResourceLibrary from "./ResourceLibrary";
+import PeerComparison from "./PeerComparison";
 import {
   ChevronDown,
   TrendingUp,
@@ -320,6 +321,11 @@ const ResultsView = ({ results, email, onStartOver, isShared }: ResultsViewProps
         {/* Progress Tracker */}
         {!isShared && (
           <ProgressTracker recommendations={recommendations} email={email} />
+        )}
+
+        {/* Peer Comparison */}
+        {!isShared && (
+          <PeerComparison recommendations={recommendations} />
         )}
 
         {/* Resource Library */}
