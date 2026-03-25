@@ -274,18 +274,18 @@ const ResultsView = ({ results, email, onStartOver, isShared }: ResultsViewProps
       : "text-muted-foreground";
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4">
+    <div className="min-h-screen bg-background py-8 sm:py-12 px-3 sm:px-4">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <motion.div
-          className="text-center mb-10"
+          className="text-center mb-8 sm:mb-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground font-display mb-3">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground font-display mb-3">
             Your Career Recommendations
           </h1>
-          <p className="text-muted-foreground max-w-md mx-auto">
+          <p className="text-sm sm:text-base text-muted-foreground max-w-md mx-auto">
             Based on your profile, here are your top matches ranked by fit score.
           </p>
         </motion.div>
@@ -344,37 +344,37 @@ const ResultsView = ({ results, email, onStartOver, isShared }: ResultsViewProps
 
         {/* Actions */}
         <motion.div
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          className="flex flex-wrap items-center justify-center gap-3 sm:gap-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
         >
           <button
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-primary text-primary-foreground font-semibold shadow-soft hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-gradient-primary text-primary-foreground font-semibold shadow-soft hover:opacity-90 transition-opacity text-sm sm:text-base"
             onClick={handleDownloadReport}
           >
             <Mail className="w-4 h-4" /> Download Report
           </button>
           {!isShared && (
             <button
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-accent-foreground font-semibold shadow-soft hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-accent text-accent-foreground font-semibold shadow-soft hover:opacity-90 transition-opacity disabled:opacity-50 text-sm sm:text-base"
               onClick={handleSendToEmail}
               disabled={emailing}
             >
               {emailing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              {emailing ? "Sending..." : `Send Report to ${email}`}
+              {emailing ? "Sending..." : "Email Report"}
             </button>
           )}
           <button
             onClick={handleShare}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-secondary text-secondary-foreground font-semibold shadow-soft hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-secondary text-secondary-foreground font-semibold shadow-soft hover:opacity-90 transition-opacity text-sm sm:text-base"
           >
             {shareUrl ? <Link className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
-            {shareUrl ? "Copy Link" : "Share Results"}
+            {shareUrl ? "Copy Link" : "Share"}
           </button>
           <button
             onClick={onStartOver}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 font-medium transition-colors"
+            className="flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 font-medium transition-colors text-sm sm:text-base"
           >
             <RotateCcw className="w-4 h-4" /> Start Over
           </button>
