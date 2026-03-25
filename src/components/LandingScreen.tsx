@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Sparkles, Clock, Shield, ArrowRight } from "lucide-react";
 import { useState } from "react";
+import OnboardingTutorial from "./OnboardingTutorial";
 
 interface LandingScreenProps {
   onStart: (email: string) => void;
@@ -21,6 +22,7 @@ const LandingScreen = ({ onStart }: LandingScreenProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-hero flex items-center justify-center px-4">
+      <OnboardingTutorial />
       <div className="absolute inset-0 overflow-hidden">
         {[...Array(3)].map((_, i) => (
           <motion.div
