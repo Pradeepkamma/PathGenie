@@ -54,6 +54,14 @@ const OnboardingTutorial = () => {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("reset_tour") === "1") {
+      localStorage.removeItem(STORAGE_KEY);
+      // Clean the URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete("reset_tour");
+      window.history.replaceState({}, "", url.toString());
+    }
     const seen = localStorage.getItem(STORAGE_KEY);
     if (!seen) {
       const timer = setTimeout(() => setVisible(true), 800);
