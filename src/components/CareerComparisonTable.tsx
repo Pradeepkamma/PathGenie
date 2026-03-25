@@ -122,18 +122,18 @@ const CareerComparisonTable = ({ recommendations }: CareerComparisonTableProps) 
           animate={{ opacity: 1, height: "auto" }}
           className="mt-3 bg-card rounded-2xl border border-border shadow-card overflow-hidden"
         >
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
+          <div className="overflow-x-auto -webkit-overflow-scrolling-touch">
+            <table className="w-full text-left" style={{ minWidth: `${120 + recommendations.length * 150}px` }}>
               <thead>
                 <tr className="border-b border-border">
-                  <th className="p-4 text-xs font-semibold text-muted-foreground w-36 sticky left-0 bg-card z-10">
+                  <th className="p-3 sm:p-4 text-xs font-semibold text-muted-foreground w-24 sm:w-36 sticky left-0 bg-card z-10">
                     Criteria
                   </th>
                   {recommendations.map((rec, i) => (
-                    <th key={i} className="p-4 min-w-[160px]">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-xs text-muted-foreground font-medium">#{rec.rank}</span>
-                        <span className="text-sm font-bold text-foreground font-display leading-tight">
+                    <th key={i} className="p-3 sm:p-4 min-w-[130px] sm:min-w-[160px]">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[10px] sm:text-xs text-muted-foreground font-medium">#{rec.rank}</span>
+                        <span className="text-xs sm:text-sm font-bold text-foreground font-display leading-tight">
                           {rec.career_title}
                         </span>
                       </div>
@@ -147,11 +147,11 @@ const CareerComparisonTable = ({ recommendations }: CareerComparisonTableProps) 
                     key={row.label}
                     className={`border-b border-border/50 ${ri % 2 === 0 ? "bg-muted/20" : ""}`}
                   >
-                    <td className="p-4 text-xs font-semibold text-muted-foreground sticky left-0 bg-inherit z-10">
+                    <td className="p-3 sm:p-4 text-[11px] sm:text-xs font-semibold text-muted-foreground sticky left-0 bg-inherit z-10">
                       {row.label}
                     </td>
                     {recommendations.map((rec, ci) => (
-                      <td key={ci} className="p-4 align-top">
+                      <td key={ci} className="p-3 sm:p-4 align-top">
                         {row.render(rec)}
                       </td>
                     ))}

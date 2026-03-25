@@ -149,27 +149,32 @@ const PeerComparison = ({ recommendations }: PeerComparisonProps) => {
       </div>
 
       {/* Fit Score Comparison Chart */}
-      <div className="bg-card rounded-2xl border border-border p-6 shadow-card">
+      <div className="bg-card rounded-2xl border border-border p-4 sm:p-6 shadow-card">
         <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
           <Percent className="w-4 h-4 text-primary" /> Your Fit Score vs. Peer Average
         </h3>
-        <div className="h-56">
+        <div className="h-48 sm:h-56">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={peerStats}
-              margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+              margin={{ top: 5, right: 5, left: -15, bottom: 5 }}
             >
               <XAxis
                 dataKey="careerTitle"
-                tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                 axisLine={false}
                 tickLine={false}
+                interval={0}
+                angle={-20}
+                textAnchor="end"
+                height={45}
               />
               <YAxis
                 domain={[0, 100]}
                 tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                 axisLine={false}
                 tickLine={false}
+                width={30}
               />
               <Tooltip
                 contentStyle={{

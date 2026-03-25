@@ -100,27 +100,32 @@ const ResultsCharts = ({ recommendations }: ResultsChartsProps) => {
 
   return (
     <motion.div
-      className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10"
+      className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-10"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
       {/* Bar Chart */}
-      <div className="bg-card rounded-2xl border border-border shadow-card p-6">
-        <h3 className="text-lg font-bold text-foreground font-display mb-4">Fit Score Comparison</h3>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={barData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+      <div className="bg-card rounded-2xl border border-border shadow-card p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-bold text-foreground font-display mb-4">Fit Score Comparison</h3>
+        <ResponsiveContainer width="100%" height={220}>
+          <BarChart data={barData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
             <XAxis
               dataKey="name"
-              tick={{ fill: "hsl(220, 10%, 55%)", fontSize: 12 }}
+              tick={{ fill: "hsl(220, 10%, 55%)", fontSize: 10 }}
               axisLine={false}
               tickLine={false}
+              interval={0}
+              angle={-25}
+              textAnchor="end"
+              height={50}
             />
             <YAxis
               domain={[0, 100]}
-              tick={{ fill: "hsl(220, 10%, 55%)", fontSize: 12 }}
+              tick={{ fill: "hsl(220, 10%, 55%)", fontSize: 11 }}
               axisLine={false}
               tickLine={false}
+              width={35}
             />
             <Tooltip content={<CustomTooltip />} />
             <Bar dataKey="score" radius={[8, 8, 0, 0]} animationDuration={1200}>
@@ -133,16 +138,16 @@ const ResultsCharts = ({ recommendations }: ResultsChartsProps) => {
       </div>
 
       {/* Radar Chart */}
-      <div className="bg-card rounded-2xl border border-border shadow-card p-6">
-        <h3 className="text-lg font-bold text-foreground font-display mb-4">
+      <div className="bg-card rounded-2xl border border-border shadow-card p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-bold text-foreground font-display mb-4">
           Career Dimensions (Top 3)
         </h3>
-        <ResponsiveContainer width="100%" height={250}>
-          <RadarChart data={radarData}>
+        <ResponsiveContainer width="100%" height={220}>
+          <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">
             <PolarGrid stroke="hsl(220, 15%, 30%)" />
             <PolarAngleAxis
               dataKey="dimension"
-              tick={{ fill: "hsl(220, 10%, 55%)", fontSize: 11 }}
+              tick={{ fill: "hsl(220, 10%, 55%)", fontSize: 10 }}
             />
             <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
             {top3.map((r, i) => (
@@ -159,11 +164,11 @@ const ResultsCharts = ({ recommendations }: ResultsChartsProps) => {
             <Tooltip content={<CustomTooltip />} />
           </RadarChart>
         </ResponsiveContainer>
-        <div className="flex flex-wrap gap-3 mt-3 justify-center">
+        <div className="flex flex-wrap gap-2 sm:gap-3 mt-3 justify-center">
           {top3.map((r, i) => (
-            <div key={r.career_title} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span className="w-3 h-3 rounded-full" style={{ background: COLORS[i] }} />
-              {r.career_title}
+            <div key={r.career_title} className="flex items-center gap-1.5 text-[11px] sm:text-xs text-muted-foreground">
+              <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0" style={{ background: COLORS[i] }} />
+              <span className="truncate max-w-[100px] sm:max-w-none">{r.career_title}</span>
             </div>
           ))}
         </div>
