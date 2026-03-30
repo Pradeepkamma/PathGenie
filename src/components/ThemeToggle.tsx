@@ -2,7 +2,11 @@ import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
-const ThemeToggle = () => {
+interface ThemeToggleProps {
+  inline?: boolean;
+}
+
+const ThemeToggle = ({ inline }: ThemeToggleProps) => {
   const [dark, setDark] = useState(() => {
     if (typeof window === "undefined") return false;
     return (
@@ -22,6 +26,20 @@ const ThemeToggle = () => {
       localStorage.setItem("theme", "light");
     }
   }, [dark]);
+
+  if (inline) {
+    return (
+      <motion.button
+        onClick={() => setDark(!dark)}
+        className="p-2 rounded-lg bg-muted border border-border text-foreground hover:bg-secondary transition-colors"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        aria-label="Toggle theme"
+      >
+        {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+      </motion.button>
+    );
+  }
 
   return (
     <motion.button
