@@ -379,7 +379,6 @@ const ResultsView = ({ results, email, onStartOver, isShared }: ResultsViewProps
             <RotateCcw className="w-4 h-4" /> Start Over
           </button>
         </motion.div>
-      </div>
 
         {/* CTA Section */}
         <motion.div
@@ -409,10 +408,10 @@ const ResultsView = ({ results, email, onStartOver, isShared }: ResultsViewProps
             </a>
           </div>
         </motion.div>
-
-        {/* AI Career Chatbot */}
-        <CareerChatbot results={results} />
       </div>
+
+      {/* AI Career Chatbot */}
+      <CareerChatbot results={results} />
     </div>
   );
 };
