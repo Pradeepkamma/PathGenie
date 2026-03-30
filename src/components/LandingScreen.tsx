@@ -72,7 +72,7 @@ const LandingScreen = ({ onStart }: LandingScreenProps) => {
           </span>
         </h1>
 
-        <p className="text-xl sm:text-2xl text-primary-foreground/50 italic mb-8 font-display">
+        <p className="text-xl sm:text-2xl text-primary-foreground/50 italic mb-8 font-display tracking-wide">
           🧞‍♂️ A Genie That Finds Your Path
         </p>
 

@@ -381,8 +381,38 @@ const ResultsView = ({ results, email, onStartOver, isShared }: ResultsViewProps
         </motion.div>
       </div>
 
-      {/* AI Career Chatbot */}
-      <CareerChatbot results={results} />
+        {/* CTA Section */}
+        <motion.div
+          className="mt-12 text-center bg-gradient-card rounded-2xl border border-border shadow-card p-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1 }}
+        >
+          <h3 className="text-xl font-bold text-foreground font-display mb-2">
+            🚀 Want more personalized guidance?
+          </h3>
+          <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
+            Start over with different answers, or reach out for detailed career coaching.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <button
+              onClick={onStartOver}
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-primary text-primary-foreground font-semibold shadow-soft hover:opacity-90 transition-opacity"
+            >
+              <RotateCcw className="w-4 h-4" /> Try Again
+            </button>
+            <a
+              href="mailto:feedback@pathgenie.com"
+              className="flex items-center gap-2 px-6 py-3 rounded-xl border border-border text-foreground font-medium hover:bg-muted transition-colors"
+            >
+              <Mail className="w-4 h-4" /> Contact / Feedback
+            </a>
+          </div>
+        </motion.div>
+
+        {/* AI Career Chatbot */}
+        <CareerChatbot results={results} />
+      </div>
     </div>
   );
 };
