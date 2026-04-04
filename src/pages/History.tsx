@@ -102,7 +102,7 @@ const History = () => {
                       {item.results.recommendations?.[0]?.career_title || "Career Analysis"}
                     </h3>
                     <p className="text-sm text-muted-foreground line-clamp-2">
-                      {item.results.summary || "View your detailed career recommendations"}
+                      {item.results.summary?.top_recommendation || "View your detailed career recommendations"}
                     </p>
                     <div className="flex gap-2 mt-2 flex-wrap">
                       {item.results.recommendations?.slice(0, 3).map((r) => (
