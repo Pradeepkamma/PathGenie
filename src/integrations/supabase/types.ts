@@ -47,24 +47,78 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          updated_at?: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
       shared_results: {
         Row: {
           created_at: string
           email: string | null
           id: string
           results: Json
+          user_id: string | null
         }
         Insert: {
           created_at?: string
           email?: string | null
           id?: string
           results: Json
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           email?: string | null
           id?: string
           results?: Json
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_results: {
+        Row: {
+          created_at: string
+          id: string
+          results: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          results: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          results?: Json
+          user_id?: string
         }
         Relationships: []
       }
