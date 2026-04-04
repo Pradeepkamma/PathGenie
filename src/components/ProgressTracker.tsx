@@ -48,6 +48,7 @@ const fireConfetti = (intensity: "small" | "big") => {
 };
 
 const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
+  const { user } = useAuth();
   const [selectedCareer, setSelectedCareer] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Record<string, boolean[]>>({});
   const [loading, setLoading] = useState(true);
