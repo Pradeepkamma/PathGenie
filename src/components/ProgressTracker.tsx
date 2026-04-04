@@ -62,11 +62,12 @@ const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
   const progress = steps.length > 0 ? Math.round((completedCount / steps.length) * 100) : 0;
 
   useEffect(() => {
+    if (!user) { setLoading(false); return; }
     const fetchProgress = async () => {
       const { data } = await supabase
         .from("career_progress")
         .select("career_title, step_index, completed")
-        .eq("email", email);
+        .eq("user_id", user.id);
 
       if (data) {
         const map: Record<string, boolean[]> = {};
@@ -82,7 +83,7 @@ const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
       setLoading(false);
     };
     fetchProgress();
-  }, [email, recommendations]);
+  }, [user, recommendations]);
 
   const celebrateStep = useCallback(
     (newCount: number, totalSteps: number) => {
