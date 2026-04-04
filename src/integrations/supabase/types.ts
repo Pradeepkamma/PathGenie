@@ -24,6 +24,7 @@ export type Database = {
           id: string
           step_index: number
           step_text: string
+          user_id: string | null
         }
         Insert: {
           career_title: string
@@ -34,6 +35,7 @@ export type Database = {
           id?: string
           step_index: number
           step_text: string
+          user_id?: string | null
         }
         Update: {
           career_title?: string
@@ -44,6 +46,7 @@ export type Database = {
           id?: string
           step_index?: number
           step_text?: string
+          user_id?: string | null
         }
         Relationships: []
       }
