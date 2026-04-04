@@ -107,6 +107,10 @@ const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
   );
 
   const toggleStep = async (stepIndex: number) => {
+    if (!user) {
+      toast.error("Sign in to track your progress");
+      return;
+    }
     const newChecked = [...checked];
     const wasCompleted = newChecked[stepIndex];
     newChecked[stepIndex] = !wasCompleted;
@@ -121,7 +125,7 @@ const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
     const { data: existing } = await supabase
       .from("career_progress")
       .select("id")
-      .eq("email", email)
+      .eq("user_id", user.id)
       .eq("career_title", careerKey)
       .eq("step_index", stepIndex)
       .maybeSingle();
@@ -136,6 +140,7 @@ const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
         .eq("id", existing.id);
     } else {
       await supabase.from("career_progress").insert({
+        user_id: user.id,
         email,
         career_title: careerKey,
         step_index: stepIndex,
