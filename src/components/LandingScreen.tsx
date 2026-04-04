@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
-import { Sparkles, Clock, Shield, ArrowRight } from "lucide-react";
+import { Sparkles, Clock, Shield, ArrowRight, LogIn } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import OnboardingTutorial from "./OnboardingTutorial";
 
 interface LandingScreenProps {
@@ -10,9 +12,15 @@ interface LandingScreenProps {
 const LandingScreen = ({ onStart }: LandingScreenProps) => {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (user) {
+      onStart(user.email || "");
+      return;
+    }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError("Please enter a valid email address");
       return;
@@ -91,30 +99,19 @@ const LandingScreen = ({ onStart }: LandingScreenProps) => {
           </div>
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4 text-success" />
-            Data deleted in 7 days
+            {user ? "Results saved to history" : "Data deleted in 7 days"}
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="max-w-md mx-auto">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setError("");
-                }}
-                placeholder="Enter your email for the report"
-                className="w-full px-4 py-3.5 rounded-xl bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent/50 transition-all"
-              />
-              {error && (
-                <p className="text-destructive text-sm mt-1 text-left">{error}</p>
-              )}
-            </div>
+        {user ? (
+          <div className="max-w-md mx-auto space-y-3">
+            <p className="text-primary-foreground/70 text-sm mb-3">
+              Signed in as <span className="font-semibold">{user.email}</span>
+            </p>
             <motion.button
-              type="submit"
-              className="px-6 py-3.5 bg-gradient-primary rounded-xl text-primary-foreground font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-elevated whitespace-nowrap"
+              type="button"
+              onClick={() => onStart(user.email || "")}
+              className="px-8 py-3.5 bg-gradient-primary rounded-xl text-primary-foreground font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-elevated mx-auto"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -122,7 +119,45 @@ const LandingScreen = ({ onStart }: LandingScreenProps) => {
               <ArrowRight className="w-4 h-4" />
             </motion.button>
           </div>
-        </form>
+        ) : (
+          <div className="max-w-md mx-auto space-y-4">
+            <form onSubmit={handleSubmit}>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setError("");
+                    }}
+                    placeholder="Enter your email for the report"
+                    className="w-full px-4 py-3.5 rounded-xl bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent/50 transition-all"
+                  />
+                  {error && (
+                    <p className="text-destructive text-sm mt-1 text-left">{error}</p>
+                  )}
+                </div>
+                <motion.button
+                  type="submit"
+                  className="px-6 py-3.5 bg-gradient-primary rounded-xl text-primary-foreground font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-elevated whitespace-nowrap"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Let's Go
+                  <ArrowRight className="w-4 h-4" />
+                </motion.button>
+              </div>
+            </form>
+            <button
+              onClick={() => navigate("/auth")}
+              className="flex items-center gap-2 mx-auto text-sm text-primary-foreground/50 hover:text-primary-foreground/80 transition-colors"
+            >
+              <LogIn className="w-4 h-4" />
+              Sign in to save results to your history
+            </button>
+          </div>
+        )}
       </motion.div>
     </div>
   );

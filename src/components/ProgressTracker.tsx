@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Circle, Trophy, Sparkles, PartyPopper } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import type { CareerRecommendation } from "@/lib/quizData";
 import confetti from "canvas-confetti";
@@ -47,6 +48,7 @@ const fireConfetti = (intensity: "small" | "big") => {
 };
 
 const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
+  const { user } = useAuth();
   const [selectedCareer, setSelectedCareer] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Record<string, boolean[]>>({});
   const [loading, setLoading] = useState(true);
@@ -60,11 +62,12 @@ const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
   const progress = steps.length > 0 ? Math.round((completedCount / steps.length) * 100) : 0;
 
   useEffect(() => {
+    if (!user) { setLoading(false); return; }
     const fetchProgress = async () => {
       const { data } = await supabase
         .from("career_progress")
         .select("career_title, step_index, completed")
-        .eq("email", email);
+        .eq("user_id", user.id);
 
       if (data) {
         const map: Record<string, boolean[]> = {};
@@ -80,7 +83,7 @@ const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
       setLoading(false);
     };
     fetchProgress();
-  }, [email, recommendations]);
+  }, [user, recommendations]);
 
   const celebrateStep = useCallback(
     (newCount: number, totalSteps: number) => {
@@ -104,6 +107,10 @@ const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
   );
 
   const toggleStep = async (stepIndex: number) => {
+    if (!user) {
+      toast.error("Sign in to track your progress");
+      return;
+    }
     const newChecked = [...checked];
     const wasCompleted = newChecked[stepIndex];
     newChecked[stepIndex] = !wasCompleted;
@@ -118,7 +125,7 @@ const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
     const { data: existing } = await supabase
       .from("career_progress")
       .select("id")
-      .eq("email", email)
+      .eq("user_id", user.id)
       .eq("career_title", careerKey)
       .eq("step_index", stepIndex)
       .maybeSingle();
@@ -133,6 +140,7 @@ const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
         .eq("id", existing.id);
     } else {
       await supabase.from("career_progress").insert({
+        user_id: user.id,
         email,
         career_title: careerKey,
         step_index: stepIndex,
