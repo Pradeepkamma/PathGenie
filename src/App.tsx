@@ -9,6 +9,7 @@ import SharedResults from "./pages/SharedResults";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import History from "./pages/History";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
