@@ -140,7 +140,6 @@ const ProgressTracker = ({ recommendations }: ProgressTrackerProps) => {
     } else {
       await supabase.from("career_progress").insert({
         user_id: user.id,
-        email,
         career_title: careerKey,
         step_index: stepIndex,
         step_text: steps[stepIndex],
