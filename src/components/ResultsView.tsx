@@ -114,7 +114,7 @@ const ResultsView = ({ results, email, onStartOver, isShared }: ResultsViewProps
 
         {/* Progress Tracker */}
         {!isShared && (
-          <ProgressTracker recommendations={recommendations} email={email} />
+          <ProgressTracker recommendations={recommendations} />
         )}
 
         {/* Peer Comparison */}
