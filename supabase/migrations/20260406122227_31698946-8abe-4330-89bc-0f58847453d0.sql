@@ -1,0 +1,1 @@
+ALTER TABLE public.career_progress DROP COLUMN email;
