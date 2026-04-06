@@ -22,7 +22,7 @@ const SharedResults = () => {
 
       const { data, error: fetchError } = await supabase
         .from("shared_results")
-        .select("*")
+        .select("id, results, created_at")
         .eq("id", id)
         .single();
 
@@ -33,7 +33,6 @@ const SharedResults = () => {
       }
 
       setResults(data.results as unknown as AnalysisResult);
-      setEmail(data.email || "");
       setLoading(false);
     };
 

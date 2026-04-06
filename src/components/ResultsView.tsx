@@ -66,9 +66,10 @@ const ResultsView = ({ results, email, onStartOver, isShared }: ResultsViewProps
       return;
     }
     try {
+      const { data: { user } } = await supabase.auth.getUser();
       const { data, error } = await supabase
         .from("shared_results")
-        .insert([{ email, results: JSON.parse(JSON.stringify(results)) }])
+        .insert([{ results: JSON.parse(JSON.stringify(results)), user_id: user?.id }])
         .select("id")
         .single();
       if (error) throw error;
