@@ -9,7 +9,6 @@ import confetti from "canvas-confetti";
 
 interface ProgressTrackerProps {
   recommendations: CareerRecommendation[];
-  email: string;
 }
 
 const milestoneMessages = [
