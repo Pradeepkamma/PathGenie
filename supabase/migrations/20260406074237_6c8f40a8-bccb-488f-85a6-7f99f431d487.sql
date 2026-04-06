@@ -1,0 +1,1 @@
+ALTER TABLE public.shared_results DROP COLUMN IF EXISTS email;

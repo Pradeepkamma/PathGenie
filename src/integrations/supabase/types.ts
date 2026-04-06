@@ -83,21 +83,18 @@ export type Database = {
       shared_results: {
         Row: {
           created_at: string
-          email: string | null
           id: string
           results: Json
           user_id: string | null
         }
         Insert: {
           created_at?: string
-          email?: string | null
           id?: string
           results: Json
           user_id?: string | null
         }
         Update: {
           created_at?: string
-          email?: string | null
           id?: string
           results?: Json
           user_id?: string | null
