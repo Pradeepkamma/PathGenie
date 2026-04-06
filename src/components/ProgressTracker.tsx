@@ -9,7 +9,6 @@ import confetti from "canvas-confetti";
 
 interface ProgressTrackerProps {
   recommendations: CareerRecommendation[];
-  email: string;
 }
 
 const milestoneMessages = [
@@ -47,7 +46,7 @@ const fireConfetti = (intensity: "small" | "big") => {
   }
 };
 
-const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
+const ProgressTracker = ({ recommendations }: ProgressTrackerProps) => {
   const { user } = useAuth();
   const [selectedCareer, setSelectedCareer] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Record<string, boolean[]>>({});
@@ -141,7 +140,6 @@ const ProgressTracker = ({ recommendations, email }: ProgressTrackerProps) => {
     } else {
       await supabase.from("career_progress").insert({
         user_id: user.id,
-        email,
         career_title: careerKey,
         step_index: stepIndex,
         step_text: steps[stepIndex],
