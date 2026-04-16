@@ -21,9 +21,7 @@ const SharedResults = () => {
       }
 
       const { data, error: fetchError } = await supabase
-        .from("shared_results")
-        .select("id, results, created_at")
-        .eq("id", id)
+        .rpc("get_shared_result_by_id", { result_id: id })
         .single();
 
       if (fetchError || !data) {
