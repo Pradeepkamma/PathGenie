@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,6 +13,30 @@ serve(async (req) => {
   }
 
   try {
+    // Auth check
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { email, results } = await req.json();
 
     if (!email || !results) {
@@ -41,25 +66,25 @@ serve(async (req) => {
         <p style="color:#555;font-size:14px;margin:8px 0"><strong>What you'll do:</strong> ${rec.role_description}</p>
         <div style="display:flex;gap:24px;margin-top:12px">
           <div>
-            <p style="font-weight:600;font-size:13px;color:#333;margin-bottom:4px">✅ Skills You Have</p>
+            <p style="font-weight:600;font-size:13px;color:#333;margin-bottom:4px">Skills You Have</p>
             <ul style="padding-left:16px;margin:0;color:#555;font-size:13px">
               ${rec.skills_you_have.map((s: string) => `<li>${s}</li>`).join("")}
             </ul>
           </div>
           <div>
-            <p style="font-weight:600;font-size:13px;color:#333;margin-bottom:4px">📚 Skills to Develop</p>
+            <p style="font-weight:600;font-size:13px;color:#333;margin-bottom:4px">Skills to Develop</p>
             <ul style="padding-left:16px;margin:0;color:#555;font-size:13px">
               ${rec.skills_to_develop.map((s: string) => `<li>${s}</li>`).join("")}
             </ul>
           </div>
         </div>
         <div style="margin-top:12px;background:#fff;border-radius:8px;padding:12px">
-          <p style="font-weight:600;font-size:13px;color:#333;margin:0 0 6px">💼 Career Outlook</p>
+          <p style="font-weight:600;font-size:13px;color:#333;margin:0 0 6px">Career Outlook</p>
           <p style="color:#555;font-size:13px;margin:2px 0">Entry: ${rec.career_outlook.salary_entry} | Experienced: ${rec.career_outlook.salary_experienced}</p>
           <p style="color:#555;font-size:13px;margin:2px 0">Growth: ${rec.career_outlook.growth_potential} | Jobs: ${rec.career_outlook.job_availability}</p>
         </div>
         <div style="margin-top:12px">
-          <p style="font-weight:600;font-size:13px;color:#333;margin-bottom:4px">🚀 Next Steps</p>
+          <p style="font-weight:600;font-size:13px;color:#333;margin-bottom:4px">Next Steps</p>
           <ol style="padding-left:16px;margin:0;color:#555;font-size:13px">
             ${rec.next_steps.map((s: string) => `<li style="margin-bottom:4px">${s}</li>`).join("")}
           </ol>
@@ -74,7 +99,7 @@ serve(async (req) => {
     <body style="font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;padding:32px 16px;margin:0">
       <div style="max-width:640px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
         <div style="background:linear-gradient(135deg,#1a1a2e,#2d1b69);padding:32px;text-align:center">
-          <h1 style="color:#fff;margin:0;font-size:28px">🧞‍♂️ PathGenie</h1>
+          <h1 style="color:#fff;margin:0;font-size:28px">PathGenie</h1>
           <p style="color:rgba(255,255,255,0.7);margin:8px 0 0;font-size:16px">Your Career Recommendations Report</p>
         </div>
         <div style="padding:24px">
@@ -102,7 +127,7 @@ serve(async (req) => {
       body: JSON.stringify({
         from: "PathGenie <onboarding@resend.dev>",
         to: [email],
-        subject: `🧞‍♂️ Your PathGenie Career Report — ${summary.top_recommendation}`,
+        subject: `Your PathGenie Career Report — ${summary.top_recommendation}`,
         html,
       }),
     });
