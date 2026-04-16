@@ -124,7 +124,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_shared_result_by_id: {
+        Args: { result_id: string }
+        Returns: {
+          created_at: string
+          id: string
+          results: Json
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
