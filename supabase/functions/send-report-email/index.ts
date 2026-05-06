@@ -7,6 +7,17 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Escape HTML special chars to prevent injection in email body
+function esc(input: unknown): string {
+  if (input === null || input === undefined) return "";
+  return String(input)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -37,11 +48,20 @@ serve(async (req) => {
       });
     }
 
-    const { email, results } = await req.json();
-
-    if (!email || !results) {
+    // SECURITY: Always send to the authenticated user's own email — never trust client input
+    const recipientEmail = (claimsData.claims as any).email as string | undefined;
+    if (!recipientEmail || typeof recipientEmail !== "string") {
       return new Response(
-        JSON.stringify({ error: "Email and results are required" }),
+        JSON.stringify({ error: "Authenticated user has no email on file" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const { results } = await req.json();
+
+    if (!results || typeof results !== "object") {
+      return new Response(
+        JSON.stringify({ error: "Results are required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -52,41 +72,47 @@ serve(async (req) => {
     }
 
     const { recommendations, summary } = results;
+    if (!Array.isArray(recommendations) || !summary) {
+      return new Response(
+        JSON.stringify({ error: "Invalid results payload" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    // Build HTML email
+    // Build HTML email — all interpolated values are HTML-escaped
     const careerCards = recommendations
       .map(
         (rec: any) => `
       <div style="background:#f8f9fa;border-radius:12px;padding:20px;margin-bottom:16px;border-left:4px solid ${rec.rank === 1 ? '#4f46e5' : '#e5e7eb'}">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <h3 style="margin:0;font-size:18px;color:#1a1a2e">#${rec.rank} ${rec.career_title}</h3>
-          <span style="font-size:24px;font-weight:bold;color:${rec.fit_score >= 85 ? '#22c55e' : rec.fit_score >= 70 ? '#eab308' : '#6b7280'}">${rec.fit_score}%</span>
+          <h3 style="margin:0;font-size:18px;color:#1a1a2e">#${esc(rec.rank)} ${esc(rec.career_title)}</h3>
+          <span style="font-size:24px;font-weight:bold;color:${Number(rec.fit_score) >= 85 ? '#22c55e' : Number(rec.fit_score) >= 70 ? '#eab308' : '#6b7280'}">${esc(rec.fit_score)}%</span>
         </div>
-        <p style="color:#555;font-size:14px;margin:8px 0">${rec.why_fits}</p>
-        <p style="color:#555;font-size:14px;margin:8px 0"><strong>What you'll do:</strong> ${rec.role_description}</p>
+        <p style="color:#555;font-size:14px;margin:8px 0">${esc(rec.why_fits)}</p>
+        <p style="color:#555;font-size:14px;margin:8px 0"><strong>What you'll do:</strong> ${esc(rec.role_description)}</p>
         <div style="display:flex;gap:24px;margin-top:12px">
           <div>
             <p style="font-weight:600;font-size:13px;color:#333;margin-bottom:4px">Skills You Have</p>
             <ul style="padding-left:16px;margin:0;color:#555;font-size:13px">
-              ${rec.skills_you_have.map((s: string) => `<li>${s}</li>`).join("")}
+              ${(Array.isArray(rec.skills_you_have) ? rec.skills_you_have : []).map((s: any) => `<li>${esc(s)}</li>`).join("")}
             </ul>
           </div>
           <div>
             <p style="font-weight:600;font-size:13px;color:#333;margin-bottom:4px">Skills to Develop</p>
             <ul style="padding-left:16px;margin:0;color:#555;font-size:13px">
-              ${rec.skills_to_develop.map((s: string) => `<li>${s}</li>`).join("")}
+              ${(Array.isArray(rec.skills_to_develop) ? rec.skills_to_develop : []).map((s: any) => `<li>${esc(s)}</li>`).join("")}
             </ul>
           </div>
         </div>
         <div style="margin-top:12px;background:#fff;border-radius:8px;padding:12px">
           <p style="font-weight:600;font-size:13px;color:#333;margin:0 0 6px">Career Outlook</p>
-          <p style="color:#555;font-size:13px;margin:2px 0">Entry: ${rec.career_outlook.salary_entry} | Experienced: ${rec.career_outlook.salary_experienced}</p>
-          <p style="color:#555;font-size:13px;margin:2px 0">Growth: ${rec.career_outlook.growth_potential} | Jobs: ${rec.career_outlook.job_availability}</p>
+          <p style="color:#555;font-size:13px;margin:2px 0">Entry: ${esc(rec.career_outlook?.salary_entry)} | Experienced: ${esc(rec.career_outlook?.salary_experienced)}</p>
+          <p style="color:#555;font-size:13px;margin:2px 0">Growth: ${esc(rec.career_outlook?.growth_potential)} | Jobs: ${esc(rec.career_outlook?.job_availability)}</p>
         </div>
         <div style="margin-top:12px">
           <p style="font-weight:600;font-size:13px;color:#333;margin-bottom:4px">Next Steps</p>
           <ol style="padding-left:16px;margin:0;color:#555;font-size:13px">
-            ${rec.next_steps.map((s: string) => `<li style="margin-bottom:4px">${s}</li>`).join("")}
+            ${(Array.isArray(rec.next_steps) ? rec.next_steps : []).map((s: any) => `<li style="margin-bottom:4px">${esc(s)}</li>`).join("")}
           </ol>
         </div>
       </div>`
@@ -105,8 +131,8 @@ serve(async (req) => {
         <div style="padding:24px">
           <div style="background:linear-gradient(145deg,#f8f9ff,#f0f2ff);border-radius:12px;padding:20px;margin-bottom:24px;border:1px solid #e5e7eb">
             <p style="color:#6b7280;font-size:13px;margin:0">Top Recommendation</p>
-            <h2 style="color:#1a1a2e;margin:4px 0;font-size:22px">${summary.top_recommendation}</h2>
-            <p style="color:#6b7280;font-size:14px;margin:8px 0 0">Confidence: <strong style="color:${summary.confidence_level === 'High' ? '#22c55e' : '#eab308'}">${summary.confidence_level}</strong> — ${summary.confidence_explanation}</p>
+            <h2 style="color:#1a1a2e;margin:4px 0;font-size:22px">${esc(summary.top_recommendation)}</h2>
+            <p style="color:#6b7280;font-size:14px;margin:8px 0 0">Confidence: <strong style="color:${summary.confidence_level === 'High' ? '#22c55e' : '#eab308'}">${esc(summary.confidence_level)}</strong> — ${esc(summary.confidence_explanation)}</p>
           </div>
           ${careerCards}
           <div style="text-align:center;margin-top:24px;padding:16px;background:#f8f9fa;border-radius:12px">
@@ -117,7 +143,7 @@ serve(async (req) => {
     </body>
     </html>`;
 
-    // Send email via Resend
+    // Send email via Resend — recipient is always the authenticated user
     const resendRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -126,8 +152,8 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         from: "PathGenie <onboarding@resend.dev>",
-        to: [email],
-        subject: `Your PathGenie Career Report — ${summary.top_recommendation}`,
+        to: [recipientEmail],
+        subject: `Your PathGenie Career Report — ${esc(summary.top_recommendation)}`,
         html,
       }),
     });
@@ -140,7 +166,7 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, message: `Report sent to ${email}` }),
+      JSON.stringify({ success: true, message: `Report sent to ${recipientEmail}` }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {
