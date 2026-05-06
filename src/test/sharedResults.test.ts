@@ -53,7 +53,7 @@ d("shared_results access control (anonymous client)", () => {
 
   it("returns zero rows for an unknown share UUID via the public RPC (no leakage)", async () => {
     const fakeId = "00000000-0000-0000-0000-000000000000";
-    const { data, error } = await anon.rpc("get_shared_result_by_id", {
+    const { data, error } = await (anon.rpc as any)("get_shared_result_by_id", {
       result_id: fakeId,
     });
     expect(error).toBeNull();
@@ -63,7 +63,7 @@ d("shared_results access control (anonymous client)", () => {
 
   it("public share-link RPC is callable by anon (does not require auth)", async () => {
     // The call itself must succeed (no permission error) even with no session.
-    const { error } = await anon.rpc("get_shared_result_by_id", {
+    const { error } = await (anon.rpc as any)("get_shared_result_by_id", {
       result_id: "11111111-1111-1111-1111-111111111111",
     });
     expect(error).toBeNull();
