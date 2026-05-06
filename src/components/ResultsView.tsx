@@ -46,11 +46,11 @@ const ResultsView = ({ results, email, onStartOver, isShared }: ResultsViewProps
     setEmailing(true);
     try {
       const { data, error } = await supabase.functions.invoke("send-report-email", {
-        body: { email, results },
+        body: { results },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      toast.success(`📧 Report sent to ${email}!`);
+      toast.success(`📧 Report sent to your account email!`);
     } catch (err) {
       console.error("Email report error:", err);
       toast.error("Failed to send report. Please try again.");
