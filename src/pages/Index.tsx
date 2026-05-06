@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import StepIndicator from "@/components/StepIndicator";
 import LandingScreen from "@/components/LandingScreen";
@@ -25,8 +26,14 @@ const Index = () => {
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [results, setResults] = useState<AnalysisResult | null>(null);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleStart = (userEmail: string) => {
+    if (!user) {
+      toast.info("Please sign in to take the quiz and save your results.");
+      navigate("/auth");
+      return;
+    }
     setEmail(userEmail);
     setStep("questionnaire");
   };
