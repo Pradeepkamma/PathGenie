@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import StepIndicator from "@/components/StepIndicator";
@@ -25,8 +25,17 @@ const Index = () => {
   const [email, setEmail] = useState("");
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [results, setResults] = useState<AnalysisResult | null>(null);
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
+
+  // Global auth guard: redirect unauthenticated users away from quiz steps
+  useEffect(() => {
+    if (!loading && !user && step !== "landing") {
+      toast.info("Please sign in to continue the quiz.");
+      setStep("landing");
+      navigate("/auth", { replace: true });
+    }
+  }, [user, loading, step, navigate]);
 
   const handleStart = (userEmail: string) => {
     if (!user) {
