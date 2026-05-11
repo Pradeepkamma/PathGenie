@@ -78,6 +78,7 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    loggedUserId = (claimsData.claims as any).sub ?? null;
 
     const { answers, questions } = await req.json();
 
