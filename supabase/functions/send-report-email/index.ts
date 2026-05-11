@@ -82,6 +82,7 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    loggedEmail = recipientEmail;
 
     const { results } = await req.json();
 
