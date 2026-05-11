@@ -114,6 +114,7 @@ serve(async (req) => {
 
     const userMessage = `Here are the student's quiz responses:\n\n${answerSummary}\n\nPlease analyze their profile and provide career recommendations.`;
 
+    const aiStart = Date.now();
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
       {
@@ -148,14 +149,8 @@ serve(async (req) => {
                           fit_score: { type: "number" },
                           why_fits: { type: "string" },
                           role_description: { type: "string" },
-                          skills_you_have: {
-                            type: "array",
-                            items: { type: "string" },
-                          },
-                          skills_to_develop: {
-                            type: "array",
-                            items: { type: "string" },
-                          },
+                          skills_you_have: { type: "array", items: { type: "string" } },
+                          skills_to_develop: { type: "array", items: { type: "string" } },
                           career_outlook: {
                             type: "object",
                             properties: {
@@ -165,31 +160,12 @@ serve(async (req) => {
                               work_life_balance: { type: "string" },
                               job_availability: { type: "string" },
                             },
-                            required: [
-                              "salary_entry",
-                              "salary_experienced",
-                              "growth_potential",
-                              "work_life_balance",
-                              "job_availability",
-                            ],
+                            required: ["salary_entry","salary_experienced","growth_potential","work_life_balance","job_availability"],
                             additionalProperties: false,
                           },
-                          next_steps: {
-                            type: "array",
-                            items: { type: "string" },
-                          },
+                          next_steps: { type: "array", items: { type: "string" } },
                         },
-                        required: [
-                          "rank",
-                          "career_title",
-                          "fit_score",
-                          "why_fits",
-                          "role_description",
-                          "skills_you_have",
-                          "skills_to_develop",
-                          "career_outlook",
-                          "next_steps",
-                        ],
+                        required: ["rank","career_title","fit_score","why_fits","role_description","skills_you_have","skills_to_develop","career_outlook","next_steps"],
                         additionalProperties: false,
                       },
                     },
@@ -197,17 +173,10 @@ serve(async (req) => {
                       type: "object",
                       properties: {
                         top_recommendation: { type: "string" },
-                        confidence_level: {
-                          type: "string",
-                          enum: ["High", "Medium", "Low"],
-                        },
+                        confidence_level: { type: "string", enum: ["High", "Medium", "Low"] },
                         confidence_explanation: { type: "string" },
                       },
-                      required: [
-                        "top_recommendation",
-                        "confidence_level",
-                        "confidence_explanation",
-                      ],
+                      required: ["top_recommendation","confidence_level","confidence_explanation"],
                       additionalProperties: false,
                     },
                   },
@@ -217,33 +186,35 @@ serve(async (req) => {
               },
             },
           ],
-          tool_choice: {
-            type: "function",
-            function: { name: "provide_career_recommendations" },
-          },
+          tool_choice: { type: "function", function: { name: "provide_career_recommendations" } },
         }),
       }
     );
+    const aiLatency = Date.now() - aiStart;
 
     if (!response.ok) {
+      const errorText = await response.text();
+      await logAi("error", aiLatency, null, `${response.status}: ${errorText.slice(0, 500)}`);
       if (response.status === 429) {
+        await logCall("error", 429, "Rate limit");
         return new Response(
           JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       if (response.status === 402) {
+        await logCall("error", 402, "AI quota");
         return new Response(
           JSON.stringify({ error: "AI usage limit reached. Please try again later." }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errorText = await response.text();
       console.error("AI gateway error:", response.status, errorText);
       throw new Error(`AI gateway error: ${response.status}`);
     }
 
     const data = await response.json();
+    await logAi("success", aiLatency, data.usage, null);
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
 
     if (!toolCall?.function?.arguments) {
@@ -251,14 +222,17 @@ serve(async (req) => {
     }
 
     const results = JSON.parse(toolCall.function.arguments);
+    await logCall("success", 200, null);
 
     return new Response(JSON.stringify(results), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error("analyze-career error:", e);
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    await logCall("error", 500, msg);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      JSON.stringify({ error: msg }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
