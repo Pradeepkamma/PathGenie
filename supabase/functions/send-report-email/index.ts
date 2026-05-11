@@ -23,6 +23,31 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const startedAt = Date.now();
+  let loggedUserId: string | null = null;
+  let loggedEmail = "";
+  const adminClient = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY")!,
+  );
+  const logCall = async (status: string, statusCode: number, errorMessage: string | null) => {
+    try {
+      await adminClient.from("function_call_logs").insert({
+        function_name: "send-report-email", status, status_code: statusCode,
+        error_message: errorMessage, duration_ms: Date.now() - startedAt, user_id: loggedUserId,
+      });
+    } catch (_) {}
+  };
+  const logEmail = async (status: string, providerId: string | null, errorMessage: string | null) => {
+    try {
+      await adminClient.from("email_send_logs").insert({
+        recipient_email: loggedEmail || "unknown",
+        template_name: "career-report",
+        status, provider_message_id: providerId, error_message: errorMessage, user_id: loggedUserId,
+      });
+    } catch (_) {}
+  };
+
   try {
     // Auth check
     const authHeader = req.headers.get("Authorization");
@@ -47,6 +72,7 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    loggedUserId = (claimsData.claims as any).sub ?? null;
 
     // SECURITY: Always send to the authenticated user's own email — never trust client input
     const recipientEmail = (claimsData.claims as any).email as string | undefined;
@@ -56,6 +82,7 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    loggedEmail = recipientEmail;
 
     const { results } = await req.json();
 
@@ -162,17 +189,22 @@ serve(async (req) => {
 
     if (!resendRes.ok) {
       console.error("Resend error:", resendData);
+      await logEmail("failed", null, resendData?.message || "Resend error");
       throw new Error(resendData?.message || "Failed to send email");
     }
 
+    await logEmail("sent", resendData?.id ?? null, null);
+    await logCall("success", 200, null);
     return new Response(
       JSON.stringify({ success: true, message: `Report sent to ${recipientEmail}` }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {
     console.error("send-report-email error:", e);
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    await logCall("error", 500, msg);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      JSON.stringify({ error: msg }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

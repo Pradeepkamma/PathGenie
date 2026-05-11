@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { Compass, LogIn, LogOut, History, User } from "lucide-react";
+import { Compass, LogIn, LogOut, History, User, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import ThemeToggle from "./ThemeToggle";
 
 interface NavbarProps {
@@ -10,6 +11,7 @@ interface NavbarProps {
 
 const Navbar = ({ currentStep }: NavbarProps) => {
   const { user, signOut } = useAuth();
+  const { isAdmin } = useIsAdmin();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -54,6 +56,15 @@ const Navbar = ({ currentStep }: NavbarProps) => {
             >
               <History className="w-4 h-4" />
               <span className="hidden sm:inline">History</span>
+            </button>
+          )}
+          {user && isAdmin && (
+            <button
+              onClick={() => navigate("/admin")}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-primary hover:bg-muted transition-colors"
+            >
+              <Shield className="w-4 h-4" />
+              <span className="hidden sm:inline">Admin</span>
             </button>
           )}
           {user ? (
