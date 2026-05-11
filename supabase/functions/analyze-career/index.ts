@@ -26,6 +26,34 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const startedAt = Date.now();
+  let loggedUserId: string | null = null;
+  const adminClient = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY")!,
+  );
+  const logCall = async (status: string, statusCode: number, errorMessage: string | null) => {
+    try {
+      await adminClient.from("function_call_logs").insert({
+        function_name: "analyze-career",
+        status, status_code: statusCode, error_message: errorMessage,
+        duration_ms: Date.now() - startedAt, user_id: loggedUserId,
+      });
+    } catch (_) { /* swallow */ }
+  };
+  const logAi = async (status: string, latencyMs: number, usage: any, errorMessage: string | null) => {
+    try {
+      await adminClient.from("ai_usage_logs").insert({
+        function_name: "analyze-career",
+        model: "google/gemini-3-flash-preview",
+        prompt_tokens: usage?.prompt_tokens ?? null,
+        completion_tokens: usage?.completion_tokens ?? null,
+        total_tokens: usage?.total_tokens ?? null,
+        latency_ms: latencyMs, status, error_message: errorMessage, user_id: loggedUserId,
+      });
+    } catch (_) {}
+  };
+
   try {
     // Auth check
     const authHeader = req.headers.get("Authorization");
