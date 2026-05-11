@@ -108,6 +108,7 @@ ${results.recommendations.map((r: any) => `#${r.rank} ${r.career_title} (${r.fit
 
     const systemMessage = `${SYSTEM_PROMPT}\n\nContext about the student:\n${resultsContext}`;
 
+    const aiStart = Date.now();
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
       {
@@ -125,31 +126,38 @@ ${results.recommendations.map((r: any) => `#${r.rank} ${r.career_title} (${r.fit
         }),
       }
     );
+    const aiLatency = Date.now() - aiStart;
 
     if (!response.ok) {
+      const errorText = await response.text();
+      await logAi("error", aiLatency, null, `${response.status}: ${errorText.slice(0, 500)}`);
       if (response.status === 429) {
+        await logCall("error", 429, "Rate limit");
         return new Response(
           JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errorText = await response.text();
       console.error("AI gateway error:", response.status, errorText);
       throw new Error(`AI gateway error: ${response.status}`);
     }
 
     const data = await response.json();
+    await logAi("success", aiLatency, data.usage, null);
     const reply = data.choices?.[0]?.message?.content;
 
     if (!reply) throw new Error("No response from AI");
 
+    await logCall("success", 200, null);
     return new Response(JSON.stringify({ reply }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error("career-chat error:", e);
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    await logCall("error", 500, msg);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      JSON.stringify({ error: msg }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
