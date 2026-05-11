@@ -189,17 +189,22 @@ serve(async (req) => {
 
     if (!resendRes.ok) {
       console.error("Resend error:", resendData);
+      await logEmail("failed", null, resendData?.message || "Resend error");
       throw new Error(resendData?.message || "Failed to send email");
     }
 
+    await logEmail("sent", resendData?.id ?? null, null);
+    await logCall("success", 200, null);
     return new Response(
       JSON.stringify({ success: true, message: `Report sent to ${recipientEmail}` }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {
     console.error("send-report-email error:", e);
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    await logCall("error", 500, msg);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      JSON.stringify({ error: msg }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
