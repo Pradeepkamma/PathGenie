@@ -38,40 +38,82 @@ const MultiSelect = ({
   options,
   selected,
   onChange,
+  allowOther,
+  otherValue,
+  onOtherChange,
 }: {
   options: { value: string; label: string }[];
   selected: string[];
   onChange: (v: string[]) => void;
-}) => (
-  <div className="flex flex-wrap gap-3 justify-center">
-    {options.map((opt) => {
-      const isSelected = selected.includes(opt.value);
-      return (
-        <motion.button
-          key={opt.value}
-          type="button"
-          onClick={() =>
-            onChange(
-              isSelected
-                ? selected.filter((v) => v !== opt.value)
-                : [...selected, opt.value]
-            )
-          }
-          className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-            isSelected
-              ? "bg-gradient-primary text-primary-foreground shadow-soft"
-              : "bg-card border border-border text-foreground hover:border-primary/50"
-          }`}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-        >
-          {isSelected && <CheckCircle className="w-3.5 h-3.5 inline mr-1.5" />}
-          {opt.label}
-        </motion.button>
-      );
-    })}
-  </div>
-);
+  allowOther?: boolean;
+  otherValue?: string;
+  onOtherChange?: (v: string) => void;
+}) => {
+  const otherSelected = selected.includes("other");
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="flex flex-wrap gap-2.5 justify-center">
+        {options.map((opt) => {
+          const isSelected = selected.includes(opt.value);
+          return (
+            <motion.button
+              key={opt.value}
+              type="button"
+              onClick={() =>
+                onChange(
+                  isSelected
+                    ? selected.filter((v) => v !== opt.value)
+                    : [...selected, opt.value]
+                )
+              }
+              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                isSelected
+                  ? "bg-gradient-primary text-primary-foreground shadow-soft"
+                  : "bg-card border border-border text-foreground hover:border-primary/50"
+              }`}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              {isSelected && <CheckCircle className="w-3.5 h-3.5 inline mr-1.5" />}
+              {opt.label}
+            </motion.button>
+          );
+        })}
+        {allowOther && (
+          <motion.button
+            type="button"
+            onClick={() =>
+              onChange(
+                otherSelected
+                  ? selected.filter((v) => v !== "other")
+                  : [...selected, "other"]
+              )
+            }
+            className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              otherSelected
+                ? "bg-gradient-primary text-primary-foreground shadow-soft"
+                : "bg-card border border-border text-foreground hover:border-primary/50"
+            }`}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            {otherSelected && <CheckCircle className="w-3.5 h-3.5 inline mr-1.5" />}
+            Other
+          </motion.button>
+        )}
+      </div>
+      {allowOther && otherSelected && (
+        <input
+          type="text"
+          value={otherValue || ""}
+          onChange={(e) => onOtherChange?.(e.target.value)}
+          placeholder="Type your language(s) here, comma separated"
+          className="mt-4 w-full block px-4 py-3 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
+        />
+      )}
+    </div>
+  );
+};
 
 const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -98,7 +140,22 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
     if (currentIndex < total - 1) {
       setCurrentIndex((i) => i + 1);
     } else {
-      onComplete(answers);
+      // Merge any "other" free-text into the relevant multi-select answers
+      const merged = { ...answers };
+      Object.keys(answers).forEach((key) => {
+        if (key.endsWith("_other")) {
+          const baseKey = key.replace(/_other$/, "");
+          const arr = Array.isArray(merged[baseKey]) ? [...merged[baseKey]] : [];
+          const otherText = (answers[key] || "").trim();
+          const idx = arr.indexOf("other");
+          if (idx !== -1 && otherText) {
+            arr.splice(idx, 1, ...otherText.split(",").map((s: string) => s.trim()).filter(Boolean));
+            merged[baseKey] = arr;
+          }
+          delete merged[key];
+        }
+      });
+      onComplete(merged);
     }
   };
 
@@ -110,13 +167,13 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
     switch (q.type) {
       case "select":
         return (
-          <div className="flex flex-col gap-3 max-w-lg mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
             {q.options?.map((opt) => (
               <motion.button
                 key={opt.value}
                 type="button"
                 onClick={() => setAnswer(opt.value)}
-                className={`px-5 py-4 rounded-xl text-left text-sm font-medium transition-all ${
+                className={`px-4 py-3 rounded-xl text-left text-sm font-medium transition-all ${
                   currentAnswer === opt.value
                     ? "bg-gradient-primary text-primary-foreground shadow-soft"
                     : "bg-card border border-border text-foreground hover:border-primary/50"
@@ -135,6 +192,11 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
             options={q.options || []}
             selected={currentAnswer || []}
             onChange={setAnswer}
+            allowOther={q.id === "languages"}
+            otherValue={answers[`${q.id}_other`] || ""}
+            onOtherChange={(v) =>
+              setAnswers((prev) => ({ ...prev, [`${q.id}_other`]: v }))
+            }
           />
         );
       case "rating":
@@ -187,7 +249,7 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
       </div>
 
       {/* Question content */}
-      <div className="flex-1 flex items-center justify-center px-4 py-12">
+      <div className="flex-1 flex items-start justify-center px-4 pt-6 pb-8">
         <div className="w-full max-w-2xl">
           <AnimatePresence mode="wait">
             <motion.div
@@ -215,15 +277,15 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
                     : "🔴 Advanced"}
                 </span>
               )}
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 font-display">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2 font-display">
                 {current.question}
               </h2>
               {current.helperText && (
-                <p className="text-muted-foreground text-sm mb-8">
+                <p className="text-muted-foreground text-sm mb-5">
                   {current.helperText}
                 </p>
               )}
-              {!current.helperText && <div className="mb-8" />}
+              {!current.helperText && <div className="mb-5" />}
               {renderInput(current)}
             </motion.div>
           </AnimatePresence>
