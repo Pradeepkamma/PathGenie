@@ -177,6 +177,11 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
             options={q.options || []}
             selected={currentAnswer || []}
             onChange={setAnswer}
+            allowOther={q.id === "languages"}
+            otherValue={answers[`${q.id}_other`] || ""}
+            onOtherChange={(v) =>
+              setAnswers((prev) => ({ ...prev, [`${q.id}_other`]: v }))
+            }
           />
         );
       case "rating":
