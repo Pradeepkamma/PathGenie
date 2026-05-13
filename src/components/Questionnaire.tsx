@@ -110,13 +110,13 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
     switch (q.type) {
       case "select":
         return (
-          <div className="flex flex-col gap-3 max-w-lg mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
             {q.options?.map((opt) => (
               <motion.button
                 key={opt.value}
                 type="button"
                 onClick={() => setAnswer(opt.value)}
-                className={`px-5 py-4 rounded-xl text-left text-sm font-medium transition-all ${
+                className={`px-4 py-3 rounded-xl text-left text-sm font-medium transition-all ${
                   currentAnswer === opt.value
                     ? "bg-gradient-primary text-primary-foreground shadow-soft"
                     : "bg-card border border-border text-foreground hover:border-primary/50"
