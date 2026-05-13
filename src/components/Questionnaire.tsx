@@ -234,7 +234,7 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
       </div>
 
       {/* Question content */}
-      <div className="flex-1 flex items-center justify-center px-4 py-12">
+      <div className="flex-1 flex items-start justify-center px-4 pt-6 pb-8">
         <div className="w-full max-w-2xl">
           <AnimatePresence mode="wait">
             <motion.div
