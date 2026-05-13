@@ -140,7 +140,22 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
     if (currentIndex < total - 1) {
       setCurrentIndex((i) => i + 1);
     } else {
-      onComplete(answers);
+      // Merge any "other" free-text into the relevant multi-select answers
+      const merged = { ...answers };
+      Object.keys(answers).forEach((key) => {
+        if (key.endsWith("_other")) {
+          const baseKey = key.replace(/_other$/, "");
+          const arr = Array.isArray(merged[baseKey]) ? [...merged[baseKey]] : [];
+          const otherText = (answers[key] || "").trim();
+          const idx = arr.indexOf("other");
+          if (idx !== -1 && otherText) {
+            arr.splice(idx, 1, ...otherText.split(",").map((s: string) => s.trim()).filter(Boolean));
+            merged[baseKey] = arr;
+          }
+          delete merged[key];
+        }
+      });
+      onComplete(merged);
     }
   };
 
