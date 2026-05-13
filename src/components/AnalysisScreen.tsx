@@ -40,16 +40,16 @@ const AnalysisScreen = ({ onComplete }: AnalysisScreenProps) => {
         animate={{ opacity: 1 }}
       >
         <motion.div
-          className="w-24 h-24 mx-auto mb-8 rounded-3xl bg-primary/20 flex items-center justify-center"
+          className="w-24 h-24 mx-auto mb-8 rounded-3xl bg-white/15 backdrop-blur-sm flex items-center justify-center shadow-elevated"
           animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         >
-          <CurrentIcon className="w-12 h-12 text-accent" />
+          <CurrentIcon className="w-12 h-12 text-white" />
         </motion.div>
 
         <motion.h2
           key={stageIndex}
-          className="text-2xl font-bold text-primary-foreground font-display mb-4"
+          className="text-2xl sm:text-3xl font-bold text-white font-display mb-4 drop-shadow"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
         >
@@ -61,14 +61,14 @@ const AnalysisScreen = ({ onComplete }: AnalysisScreenProps) => {
             <motion.div
               key={i}
               className={`h-2 rounded-full transition-all duration-500 ${
-                i <= stageIndex ? "w-8 bg-accent" : "w-2 bg-primary-foreground/20"
+                i <= stageIndex ? "w-8 bg-white" : "w-2 bg-white/30"
               }`}
             />
           ))}
         </div>
 
-        <p className="text-primary-foreground/50 text-sm mt-8">
-          This usually takes about 10-15 seconds
+        <p className="text-white/85 text-sm mt-8 font-medium">
+          This usually takes about 10–15 seconds
         </p>
       </motion.div>
     </div>
