@@ -55,30 +55,22 @@ serve(async (req) => {
   };
 
   try {
-    // Auth check
+    // Optional auth — quiz is open to anonymous users
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    if (authHeader?.startsWith("Bearer ")) {
+      try {
+        const supabase = createClient(
+          Deno.env.get("SUPABASE_URL")!,
+          Deno.env.get("SUPABASE_ANON_KEY")!,
+          { global: { headers: { Authorization: authHeader } } }
+        );
+        const token = authHeader.replace("Bearer ", "");
+        const { data: claimsData } = await supabase.auth.getClaims(token);
+        loggedUserId = (claimsData?.claims as any)?.sub ?? null;
+      } catch (_) {
+        // ignore — treat as anonymous
+      }
     }
-
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    loggedUserId = (claimsData.claims as any).sub ?? null;
 
     const { answers, questions } = await req.json();
 
