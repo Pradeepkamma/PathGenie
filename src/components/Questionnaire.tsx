@@ -262,15 +262,15 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
                     : "🔴 Advanced"}
                 </span>
               )}
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 font-display">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2 font-display">
                 {current.question}
               </h2>
               {current.helperText && (
-                <p className="text-muted-foreground text-sm mb-8">
+                <p className="text-muted-foreground text-sm mb-5">
                   {current.helperText}
                 </p>
               )}
-              {!current.helperText && <div className="mb-8" />}
+              {!current.helperText && <div className="mb-5" />}
               {renderInput(current)}
             </motion.div>
           </AnimatePresence>
