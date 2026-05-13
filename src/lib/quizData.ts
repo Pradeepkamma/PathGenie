@@ -27,7 +27,7 @@ export const questions: Question[] = [
     difficulty: "basic",
     question: "What's your name?",
     type: "text",
-    placeholder: "e.g., Rahul Sharma",
+    placeholder: "e.g., Pradeep Kamma",
     required: true,
     helperText: "Just your first name is fine too",
   },
