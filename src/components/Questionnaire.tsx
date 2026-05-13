@@ -38,40 +38,82 @@ const MultiSelect = ({
   options,
   selected,
   onChange,
+  allowOther,
+  otherValue,
+  onOtherChange,
 }: {
   options: { value: string; label: string }[];
   selected: string[];
   onChange: (v: string[]) => void;
-}) => (
-  <div className="flex flex-wrap gap-3 justify-center">
-    {options.map((opt) => {
-      const isSelected = selected.includes(opt.value);
-      return (
-        <motion.button
-          key={opt.value}
-          type="button"
-          onClick={() =>
-            onChange(
-              isSelected
-                ? selected.filter((v) => v !== opt.value)
-                : [...selected, opt.value]
-            )
-          }
-          className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-            isSelected
-              ? "bg-gradient-primary text-primary-foreground shadow-soft"
-              : "bg-card border border-border text-foreground hover:border-primary/50"
-          }`}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-        >
-          {isSelected && <CheckCircle className="w-3.5 h-3.5 inline mr-1.5" />}
-          {opt.label}
-        </motion.button>
-      );
-    })}
-  </div>
-);
+  allowOther?: boolean;
+  otherValue?: string;
+  onOtherChange?: (v: string) => void;
+}) => {
+  const otherSelected = selected.includes("other");
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="flex flex-wrap gap-2.5 justify-center">
+        {options.map((opt) => {
+          const isSelected = selected.includes(opt.value);
+          return (
+            <motion.button
+              key={opt.value}
+              type="button"
+              onClick={() =>
+                onChange(
+                  isSelected
+                    ? selected.filter((v) => v !== opt.value)
+                    : [...selected, opt.value]
+                )
+              }
+              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                isSelected
+                  ? "bg-gradient-primary text-primary-foreground shadow-soft"
+                  : "bg-card border border-border text-foreground hover:border-primary/50"
+              }`}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              {isSelected && <CheckCircle className="w-3.5 h-3.5 inline mr-1.5" />}
+              {opt.label}
+            </motion.button>
+          );
+        })}
+        {allowOther && (
+          <motion.button
+            type="button"
+            onClick={() =>
+              onChange(
+                otherSelected
+                  ? selected.filter((v) => v !== "other")
+                  : [...selected, "other"]
+              )
+            }
+            className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              otherSelected
+                ? "bg-gradient-primary text-primary-foreground shadow-soft"
+                : "bg-card border border-border text-foreground hover:border-primary/50"
+            }`}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            {otherSelected && <CheckCircle className="w-3.5 h-3.5 inline mr-1.5" />}
+            Other
+          </motion.button>
+        )}
+      </div>
+      {allowOther && otherSelected && (
+        <input
+          type="text"
+          value={otherValue || ""}
+          onChange={(e) => onOtherChange?.(e.target.value)}
+          placeholder="Type your language(s) here, comma separated"
+          className="mt-4 w-full block px-4 py-3 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
+        />
+      )}
+    </div>
+  );
+};
 
 const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
