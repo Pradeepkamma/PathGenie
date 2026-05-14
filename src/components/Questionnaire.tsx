@@ -51,8 +51,8 @@ const MultiSelect = ({
 }) => {
   const otherSelected = selected.includes("other");
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="flex flex-wrap gap-2.5 justify-center">
+    <div className="max-w-3xl mx-auto">
+      <div className="flex flex-wrap gap-2 justify-center">
         {options.map((opt) => {
           const isSelected = selected.includes(opt.value);
           return (
