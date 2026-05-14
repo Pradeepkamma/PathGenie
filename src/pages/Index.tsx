@@ -29,6 +29,9 @@ const Index = () => {
   const navigate = useNavigate();
 
   const handleStart = (userEmail: string) => {
+    // Force dark theme when entering the quiz flow (user can toggle to light later)
+    document.documentElement.classList.add("dark");
+    localStorage.setItem("theme", "dark");
     setEmail(userEmail);
     setStep("questionnaire");
   };
