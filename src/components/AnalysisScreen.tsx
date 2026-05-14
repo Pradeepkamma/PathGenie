@@ -33,23 +33,29 @@ const AnalysisScreen = ({ onComplete }: AnalysisScreenProps) => {
   const CurrentIcon = stages[stageIndex].icon;
 
   return (
-    <div className="min-h-screen bg-gradient-hero flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Subtle aurora glow */}
+      <div className="absolute inset-0 pointer-events-none opacity-40">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 rounded-full bg-primary/30 blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 rounded-full bg-accent/30 blur-3xl" />
+      </div>
+
       <motion.div
-        className="text-center"
+        className="text-center relative z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
         <motion.div
-          className="w-24 h-24 mx-auto mb-8 rounded-3xl bg-white/15 backdrop-blur-sm flex items-center justify-center shadow-elevated"
+          className="w-24 h-24 mx-auto mb-8 rounded-3xl bg-gradient-primary flex items-center justify-center shadow-elevated"
           animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         >
-          <CurrentIcon className="w-12 h-12 text-white" />
+          <CurrentIcon className="w-12 h-12 text-primary-foreground" />
         </motion.div>
 
         <motion.h2
           key={stageIndex}
-          className="text-2xl sm:text-3xl font-bold text-white font-display mb-4 drop-shadow"
+          className="text-2xl sm:text-3xl font-bold text-foreground font-display mb-4"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
         >
@@ -61,13 +67,13 @@ const AnalysisScreen = ({ onComplete }: AnalysisScreenProps) => {
             <motion.div
               key={i}
               className={`h-2 rounded-full transition-all duration-500 ${
-                i <= stageIndex ? "w-8 bg-white" : "w-2 bg-white/30"
+                i <= stageIndex ? "w-8 bg-primary" : "w-2 bg-muted"
               }`}
             />
           ))}
         </div>
 
-        <p className="text-white/85 text-sm mt-8 font-medium">
+        <p className="text-muted-foreground text-sm mt-8 font-medium">
           This usually takes about 10–15 seconds
         </p>
       </motion.div>

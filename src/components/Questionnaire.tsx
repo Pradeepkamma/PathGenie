@@ -51,8 +51,8 @@ const MultiSelect = ({
 }) => {
   const otherSelected = selected.includes("other");
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="flex flex-wrap gap-2.5 justify-center">
+    <div className="max-w-3xl mx-auto">
+      <div className="flex flex-wrap gap-2 justify-center">
         {options.map((opt) => {
           const isSelected = selected.includes(opt.value);
           return (
@@ -66,7 +66,7 @@ const MultiSelect = ({
                     : [...selected, opt.value]
                 )
               }
-              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                 isSelected
                   ? "bg-gradient-primary text-primary-foreground shadow-soft"
                   : "bg-card border border-border text-foreground hover:border-primary/50"
@@ -89,7 +89,7 @@ const MultiSelect = ({
                   : [...selected, "other"]
               )
             }
-            className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${
               otherSelected
                 ? "bg-gradient-primary text-primary-foreground shadow-soft"
                 : "bg-card border border-border text-foreground hover:border-primary/50"
@@ -167,13 +167,13 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
     switch (q.type) {
       case "select":
         return (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-2xl mx-auto">
             {q.options?.map((opt) => (
               <motion.button
                 key={opt.value}
                 type="button"
                 onClick={() => setAnswer(opt.value)}
-                className={`px-4 py-3 rounded-xl text-left text-sm font-medium transition-all ${
+                className={`px-3.5 py-2.5 rounded-lg text-left text-xs sm:text-sm font-medium transition-all ${
                   currentAnswer === opt.value
                     ? "bg-gradient-primary text-primary-foreground shadow-soft"
                     : "bg-card border border-border text-foreground hover:border-primary/50"
@@ -227,9 +227,9 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Progress bar */}
-      <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-sm border-b border-border px-4 py-3">
-        <div className="max-w-2xl mx-auto">
-          <div className="flex items-center justify-between mb-2 text-sm">
+      <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-sm border-b border-border px-4 py-2">
+        <div className="max-w-3xl mx-auto">
+          <div className="flex items-center justify-between mb-1.5 text-xs">
             <span className="text-muted-foreground">
               Question {currentIndex + 1} of {total}
             </span>
@@ -237,7 +237,7 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
               {current.category}
             </span>
           </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
+          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-gradient-primary rounded-full"
               initial={{ width: 0 }}
@@ -249,20 +249,20 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
       </div>
 
       {/* Question content */}
-      <div className="flex-1 flex items-start justify-center px-4 pt-6 pb-8">
-        <div className="w-full max-w-2xl">
+      <div className="flex-1 flex items-start justify-center px-4 pt-4 pb-4">
+        <div className="w-full max-w-3xl">
           <AnimatePresence mode="wait">
             <motion.div
               key={current.id}
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -40 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.25 }}
               className="text-center"
             >
               {current.difficulty && (
                 <span
-                  className={`inline-block mb-3 text-xs font-semibold px-3 py-1 rounded-full ${
+                  className={`inline-block mb-2 text-[10px] font-semibold px-2.5 py-0.5 rounded-full ${
                     current.difficulty === "basic"
                       ? "bg-success/15 text-success"
                       : current.difficulty === "intermediate"
@@ -277,15 +277,15 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
                     : "🔴 Advanced"}
                 </span>
               )}
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2 font-display">
+              <h2 className="text-lg sm:text-xl font-bold text-foreground mb-1 font-display">
                 {current.question}
               </h2>
               {current.helperText && (
-                <p className="text-muted-foreground text-sm mb-5">
+                <p className="text-muted-foreground text-xs mb-3">
                   {current.helperText}
                 </p>
               )}
-              {!current.helperText && <div className="mb-5" />}
+              {!current.helperText && <div className="mb-3" />}
               {renderInput(current)}
             </motion.div>
           </AnimatePresence>
@@ -293,8 +293,8 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
       </div>
 
       {/* Navigation */}
-      <div className="sticky bottom-0 bg-background/80 backdrop-blur-sm border-t border-border px-4 py-4">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
+      <div className="sticky bottom-0 bg-background/80 backdrop-blur-sm border-t border-border px-4 py-3">
+        <div className="max-w-3xl mx-auto flex items-center justify-between">
           <button
             onClick={back}
             disabled={currentIndex === 0}
