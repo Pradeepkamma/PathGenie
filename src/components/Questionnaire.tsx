@@ -66,7 +66,7 @@ const MultiSelect = ({
                     : [...selected, opt.value]
                 )
               }
-              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                 isSelected
                   ? "bg-gradient-primary text-primary-foreground shadow-soft"
                   : "bg-card border border-border text-foreground hover:border-primary/50"
