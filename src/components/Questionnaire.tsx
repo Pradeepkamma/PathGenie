@@ -173,7 +173,7 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
                 key={opt.value}
                 type="button"
                 onClick={() => setAnswer(opt.value)}
-                className={`px-4 py-3 rounded-xl text-left text-sm font-medium transition-all ${
+                className={`px-3.5 py-2.5 rounded-lg text-left text-xs sm:text-sm font-medium transition-all ${
                   currentAnswer === opt.value
                     ? "bg-gradient-primary text-primary-foreground shadow-soft"
                     : "bg-card border border-border text-foreground hover:border-primary/50"
