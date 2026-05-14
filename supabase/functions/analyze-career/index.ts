@@ -45,7 +45,7 @@ serve(async (req) => {
     try {
       await adminClient.from("ai_usage_logs").insert({
         function_name: "analyze-career",
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         prompt_tokens: usage?.prompt_tokens ?? null,
         completion_tokens: usage?.completion_tokens ?? null,
         total_tokens: usage?.total_tokens ?? null,
