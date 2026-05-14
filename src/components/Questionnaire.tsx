@@ -167,7 +167,7 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
     switch (q.type) {
       case "select":
         return (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-2xl mx-auto">
             {q.options?.map((opt) => (
               <motion.button
                 key={opt.value}
